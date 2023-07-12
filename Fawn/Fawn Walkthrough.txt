@@ -1,0 +1,13 @@
+Para inciar la evaluación, levanto la vpn mediante el network-manager. Posteriormente, levanto la instancia en Hack the Box, en este caso la máquina Fawn.
+
+Una vez levantada la máquina, se envía una traza ICMP para comprobar la conectividad a la misma.
+
+Una vez comprobada la conexión, se incia la fase de enumeración mediante nmap, ejecutando el comando nmap -sV 10.129.35.25 (detectar puertos abiertos y versión del servicio asociado), obteniedo como resultado lo siguiente:
+
+puerto 21/tcp -> FTP con version de servicio vsftpd 3.0.3
+puerto 1045/tcp -> fpitp filtrado (se desconoce el estado del puerto)
+Adicionalmente, se indica que el Sistema emplea un OS de tipo Unix
+
+En función del resultado anterior, se prueba acceder al host mediante el servicio FTP, ejecutando el comando ftp 10.129.35.25, con usuario anonymous.
+
+Una vez dentro, se ejecuta el comando ls -la para visualizar los fiches disponibles, entre los cuales se encuentra la flag de la máquina. Para traerla a la máquina loca, se ejecuta el comando get.
