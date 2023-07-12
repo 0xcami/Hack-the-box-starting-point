@@ -1,0 +1,9 @@
+A la hora de acceder a la máquina tuve problemas con Openvpn. Actualmente estoy utlizando ubuntu bionic (18.04.lts). Para resolver el problema, accedí mediante network-manager-openvpn-gnome e importe el archivo .ovpn (para mayor información visitar: https://askubuntu.com/questions/187511/how-can-i-use-a-ovpn-file-with-network-manager).
+
+Una vez levantada la vpn, levante la instancia Meow en Hack the Box. Una vez inciada, envié una traza ICMP mediante ping -c 1 10.129.25.135.
+
+Posteriormente, inicié la fase de enumeración mediante nmap, empleando el comando nmap -sV 10.129.25.135, obteniendo como resultado que el puerto 23/telnet se encuentra abierto.
+
+En función de lo anterior, inicio el servicio telnet mediante el comando telnet 10.129.25.135 junto con el usuario root.
+
+
